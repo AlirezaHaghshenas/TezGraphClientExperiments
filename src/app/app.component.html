@@ -357,10 +357,13 @@
     {{block.header.level}}: {{block.header.timestamp}}: {{block.hash}}
   </div>
 
-  <h2>Query Blocks: {{blocks?.total_count}}</h2>
-  <div *ngFor="let block of blocks?.edges">
-    {{block.node?.level}}: {{block.node?.timestamp}}: {{block.node?.hash}}
+  <h2>Query Blocks: {{blocks[0]?.total_count}}</h2>
+  <div *ngFor="let connection of blocks">
+    <div *ngFor="let block of connection?.edges">
+      {{block.node?.level}}: {{block.node?.timestamp}}: {{block.node?.hash}}
+    </div>
   </div>
+  <button (click)="loadMore()" *ngIf="blocks.length">Load More</button>
   <hr />
 
 <router-outlet></router-outlet>
