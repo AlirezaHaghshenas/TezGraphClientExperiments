@@ -300,6 +300,23 @@
       visibility: hidden;
     }
   }
+
+  .block-container {
+    display: flex;
+    width: 1100px;
+    flex-wrap: wrap;
+  }
+
+  .block {
+    width: 200px;
+    border: #1976d2 1px solid;
+    margin: 1px;
+    word-wrap: break-word;
+    overflow: hidden;
+    align-content: center;
+    text-align: center;
+  }
+
 </style>
 
 <!-- Toolbar -->
@@ -350,20 +367,30 @@
 
   </div>
 
-  <hr />
-
   <h2>Subscription Blocks: {{subscriptionBlocks.length}}</h2>
-  <div *ngFor="let block of subscriptionBlocks">
-    {{block.header.level}}: {{block.header.timestamp}}: {{block.hash}}
+  <div class="block-container">
+    <div *ngFor="let block of subscriptionBlocks" class="block">
+      <b>{{block.header.level}}</b> <br/>
+      {{block.header.timestamp}} <br/>
+        <h6> {{block.hash}} </h6>
+    </div>
   </div>
 
   <h2>Query Blocks: {{blocks[0]?.total_count}}</h2>
-  <div *ngFor="let connection of blocks">
-    <div *ngFor="let block of connection?.edges">
-      {{block.node?.level}}: {{block.node?.timestamp}}: {{block.node?.hash}}
+  <div class="block-container">
+    <ng-container *ngFor="let connection of blocks, index as index">
+      <h1 class="block">Page {{index + 1}}</h1>
+      <div *ngFor="let block of connection?.edges" class="block">
+        <b>{{block.node?.level}}</b> <br/>
+        {{block.node?.timestamp}} <br/>
+        <h6> {{block.node?.hash}} </h6>
+      </div>
+    </ng-container>
+    <div class="block" style="display: table;">
+      <span style="vertical-align: middle; display: table-cell; margin-top: auto; margin-bottom: auto;">
+        <button (click)="loadMore()" *ngIf="blocks.length">Load More</button>
+      </span>
     </div>
   </div>
-  <button (click)="loadMore()" *ngIf="blocks.length">Load More</button>
-  <hr />
 
 <router-outlet></router-outlet>
