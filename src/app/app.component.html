@@ -352,7 +352,12 @@
 
   <hr />
 
-  <h2>Blocks: {{blocks?.total_count}}</h2>
+  <h2>Subscription Blocks: {{subscriptionBlocks.length}}</h2>
+  <div *ngFor="let block of subscriptionBlocks">
+    {{block.header.level}}: {{block.header.timestamp}}: {{block.hash}}
+  </div>
+
+  <h2>Query Blocks: {{blocks?.total_count}}</h2>
   <div *ngFor="let block of blocks?.edges">
     {{block.node?.level}}: {{block.node?.timestamp}}: {{block.node?.hash}}
   </div>
