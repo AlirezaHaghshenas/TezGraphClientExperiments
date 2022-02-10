@@ -2,5 +2,7 @@
   <div *ngFor="let operation of list.edges">
     <b>Kind:</b> {{operation.node?.kind}}
     <b>Source:</b> {{operation.node?.source?.address}}
+    <b>Level:</b> {{operation.node?.block?.level}}
   </div>
 </div>
+<button (click)="loadMore()" *ngIf="operations.length">Load More</button>

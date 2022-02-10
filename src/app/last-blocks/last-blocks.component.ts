@@ -77,6 +77,9 @@ export class LastBlocksComponent implements OnInit {
             }
           }
         `,
+        variables: {
+          after: cursor,
+        },
       })
       .valueChanges.pipe(
         map((result: any) => {

@@ -20,7 +20,7 @@ export class LastOperationsComponent implements OnInit {
   constructor(private readonly apollo: Apollo) {}
 
   ngOnInit(): void {
-    this.getBlocks(null).subscribe((blocks) => {
+    this.getOperations(null).subscribe((blocks) => {
       // this.lastBlockLevel = blocks.edges?.[0].node?.level;
       // if (this.lastBlockLevel) {
         // this.subscribe(this.lastBlockLevel + 1);
@@ -32,13 +32,19 @@ export class LastOperationsComponent implements OnInit {
     });
   }
 
-  getBlocks(cursor: string | null): Observable<OperationRecordConnection> {
+  loadMore() {
+    const nextCursor = this.operations[this.operations.length - 1].page_info.end_cursor;
+    this.getOperations(nextCursor).subscribe((_) => {
+      console.log('got next page');
+    });
+  }
+
+  getOperations(cursor: string | null): Observable<OperationRecordConnection> {
     return this.apollo
       .watchQuery({
         query: gql`
           query Operations($after: Cursor) {
             operations(first: 20, after: $after) {
-              total_count
               page_info {
                 has_next_page
                 end_cursor
@@ -59,13 +65,16 @@ export class LastOperationsComponent implements OnInit {
             }
           }
         `,
+        variables: {
+          after: cursor
+        }
       })
       .valueChanges.pipe(
         map((result: any) => {
           this.result = result;
-          const blocks = result.data.operations as OperationRecordConnection;
-          this.operations?.push(blocks);
-          return blocks;
+          const operations = result.data.operations as OperationRecordConnection;
+          this.operations?.push(operations);
+          return operations;
         })
       );
   }
