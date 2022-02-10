@@ -1,0 +1,6 @@
+<div *ngFor="let list of operations">
+  <div *ngFor="let operation of list.edges">
+    <b>Kind:</b> {{operation.node?.kind}}
+    <b>Source:</b> {{operation.node?.source?.address}}
+  </div>
+</div>

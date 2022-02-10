@@ -11,11 +11,11 @@ import { InMemoryCache, split } from '@apollo/client/core';
 import {WebSocketLink} from '@apollo/client/link/ws';
 import { getMainDefinition } from '@apollo/client/utilities';
 import { OperationDefinitionNode } from 'graphql';
-import { LastTransactionsComponent } from './last-transactions/last-transactions.component';
+import { LastOperationsComponent } from './last-operations/last-operations.component';
 import { LastBlocksComponent } from './last-blocks/last-blocks.component';
 
 @NgModule({
-  declarations: [AppComponent, LastBlocksComponent, LastTransactionsComponent],
+  declarations: [AppComponent, LastBlocksComponent, LastOperationsComponent],
   imports: [BrowserModule, AppRoutingModule, GraphQLModule, HttpClientModule],
   providers: [
     {

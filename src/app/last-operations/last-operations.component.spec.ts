@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { LastTransactionsComponent } from './last-transactions.component';
+import { LastOperationsComponent } from './last-operations.component';
 
 describe('LastTransactionsComponent', () => {
-  let component: LastTransactionsComponent;
-  let fixture: ComponentFixture<LastTransactionsComponent>;
+  let component: LastOperationsComponent;
+  let fixture: ComponentFixture<LastOperationsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ LastTransactionsComponent ]
+      declarations: [ LastOperationsComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(LastTransactionsComponent);
+    fixture = TestBed.createComponent(LastOperationsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
