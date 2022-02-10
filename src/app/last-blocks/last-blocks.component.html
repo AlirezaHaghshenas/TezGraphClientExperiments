@@ -1,0 +1,25 @@
+<h2>Subscription Blocks: {{subscriptionBlocks.length}}</h2>
+<div class="block-container reverse">
+  <div *ngFor="let block of subscriptionBlocks" class="block">
+    <b>{{block.header.level}}</b> <br/>
+    {{block.header.timestamp}} <br/>
+      <h6> {{block.hash}} </h6>
+  </div>
+</div>
+
+<h2>Query Blocks: {{blocks[0]?.total_count}}</h2>
+<div class="block-container">
+  <ng-container *ngFor="let connection of blocks, index as index">
+    <h1 class="block">Page {{index + 1}}</h1>
+    <div *ngFor="let block of connection?.edges" class="block">
+      <b>{{block.node?.level}}</b> <br/>
+      {{block.node?.timestamp}} <br/>
+      <h6> {{block.node?.hash}} </h6>
+    </div>
+  </ng-container>
+  <div class="block" style="display: table;">
+    <span style="vertical-align: middle; display: table-cell; margin-top: auto; margin-bottom: auto;">
+      <button (click)="loadMore()" *ngIf="blocks.length">Load More</button>
+    </span>
+  </div>
+</div>
