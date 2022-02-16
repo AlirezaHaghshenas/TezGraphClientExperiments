@@ -1,3 +1,5 @@
+Source: <input type="text" [(ngModel)]="source"><button (click)="applyFilter()">Apply Filter</button>
+
 <div *ngFor="let list of operations">
   <div *ngFor="let operation of list.edges">
     <b>Kind:</b> {{operation.node?.kind}}

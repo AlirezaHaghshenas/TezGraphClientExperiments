@@ -15,15 +15,16 @@ export class LastOperationsComponent implements OnInit {
   result: any;
   operations: OperationRecordConnection[] = [];
   subscriptionBlocks: OperationNotification[] = [];
+  source: string | null = null;
   // lastBlockLevel?: number;
 
   constructor(private readonly apollo: Apollo) {}
 
   ngOnInit(): void {
-    this.getOperations(null).subscribe((blocks) => {
+    this.getOperations(null, this.source).subscribe((blocks) => {
       // this.lastBlockLevel = blocks.edges?.[0].node?.level;
       // if (this.lastBlockLevel) {
-        // this.subscribe(this.lastBlockLevel + 1);
+      // this.subscribe(this.lastBlockLevel + 1);
       // } else {
       //   console.error(
       //     'Could not determine block level to start subscription from'
@@ -32,19 +33,24 @@ export class LastOperationsComponent implements OnInit {
     });
   }
 
+  applyFilter() {
+    this.operations = [];
+    this.getOperations(null, this.source).subscribe((_) => {});
+  }
+
   loadMore() {
-    const nextCursor = this.operations[this.operations.length - 1].page_info.end_cursor;
-    this.getOperations(nextCursor).subscribe((_) => {
-      console.log('got next page');
+    const nextCursor =
+      this.operations[this.operations.length - 1].page_info.end_cursor;
+    this.getOperations(nextCursor, this.source).subscribe((_) => {
     });
   }
 
-  getOperations(cursor: string | null): Observable<OperationRecordConnection> {
+  getOperations(cursor: string | null, source: string | null): Observable<OperationRecordConnection> {
     return this.apollo
       .watchQuery({
         query: gql`
-          query Operations($after: Cursor) {
-            operations(first: 20, after: $after) {
+          query Operations($after: Cursor $source: Address) {
+            operations(first: 20, after: $after filter: { source: $source }) {
               page_info {
                 has_next_page
                 end_cursor
@@ -66,13 +72,15 @@ export class LastOperationsComponent implements OnInit {
           }
         `,
         variables: {
-          after: cursor
-        }
+          after: cursor,
+          source: !source ? undefined : source
+        },
       })
       .valueChanges.pipe(
         map((result: any) => {
           this.result = result;
-          const operations = result.data.operations as OperationRecordConnection;
+          const operations = result.data
+            .operations as OperationRecordConnection;
           this.operations?.push(operations);
           return operations;
         })

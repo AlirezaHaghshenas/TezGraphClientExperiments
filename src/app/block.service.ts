@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subscription, gql, Apollo, TypedDocumentNode } from 'apollo-angular';
-import { EmptyObject } from 'apollo-angular/types';
+import { EmptyObject } from 'apollo-angular/build/types';
 import { DocumentNode } from 'graphql';
 
 @Injectable({

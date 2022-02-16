@@ -13,10 +13,11 @@ import { getMainDefinition } from '@apollo/client/utilities';
 import { OperationDefinitionNode } from 'graphql';
 import { LastOperationsComponent } from './last-operations/last-operations.component';
 import { LastBlocksComponent } from './last-blocks/last-blocks.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [AppComponent, LastBlocksComponent, LastOperationsComponent],
-  imports: [BrowserModule, AppRoutingModule, GraphQLModule, HttpClientModule],
+  imports: [BrowserModule, AppRoutingModule, GraphQLModule, HttpClientModule, FormsModule],
   providers: [
     {
       provide: APOLLO_OPTIONS,
