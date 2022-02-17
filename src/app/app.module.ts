@@ -14,20 +14,21 @@ import { OperationDefinitionNode } from 'graphql';
 import { LastOperationsComponent } from './last-operations/last-operations.component';
 import { LastBlocksComponent } from './last-blocks/last-blocks.component';
 import { FormsModule } from '@angular/forms';
+import { TokenHoldersComponent } from './token-holders/token-holders.component';
 
 @NgModule({
-  declarations: [AppComponent, LastBlocksComponent, LastOperationsComponent],
+  declarations: [AppComponent, LastBlocksComponent, LastOperationsComponent, TokenHoldersComponent],
   imports: [BrowserModule, AppRoutingModule, GraphQLModule, HttpClientModule, FormsModule],
   providers: [
     {
       provide: APOLLO_OPTIONS,
       useFactory: (httpLink: HttpLink) => {
         const http = httpLink.create({
-          uri: 'https://mainnet.tezgraph.tez.ie/graphql',
+          uri: 'http://localhost:3000/graphql',
         });
 
         const ws = new WebSocketLink({
-          uri: `wss://mainnet.tezgraph.tez.ie/graphql`,
+          uri: `ws://localhost:3000/graphql`,
           options: {
             reconnect: true,
           },
