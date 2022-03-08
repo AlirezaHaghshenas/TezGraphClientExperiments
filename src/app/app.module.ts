@@ -25,10 +25,12 @@ import { TokenHoldersComponent } from './token-holders/token-holders.component';
       useFactory: (httpLink: HttpLink) => {
         const http = httpLink.create({
           uri: 'http://localhost:3000/graphql',
+          // uri: 'https://mainnet.tezgraph.tez.ie/graphql',
         });
 
         const ws = new WebSocketLink({
           uri: `ws://localhost:3000/graphql`,
+          // uri: `wss://mainnet.tezgraph.tez.ie/graphql`,
           options: {
             reconnect: true,
           },
