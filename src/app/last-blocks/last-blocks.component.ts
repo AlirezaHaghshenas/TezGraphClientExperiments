@@ -3,6 +3,8 @@ import { Apollo, gql } from 'apollo-angular';
 import { map, Observable } from 'rxjs';
 import { BlockNotification, BlockRecordConnection } from 'src/tezgraph-types';
 import { BlockService } from '../block.service';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-last-blocks',
@@ -14,10 +16,14 @@ export class LastBlocksComponent implements OnInit {
   blocks: BlockRecordConnection[] = [];
   subscriptionBlocks: BlockNotification[] = [];
   lastBlockLevel?: number;
+  queryRunning = false;
+  subscribed = false;
 
   constructor(
     private readonly apollo: Apollo,
-    private readonly blocksService: BlockService
+    private readonly blocksService: BlockService,
+    private readonly clipboard: Clipboard,
+    private readonly snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -33,8 +39,13 @@ export class LastBlocksComponent implements OnInit {
     });
   }
 
+  copyToClipboard(text: string) {
+    this.clipboard.copy(text);
+    this.snackBar.open('Copied to clipboard!', undefined, { duration: 700 });
+  }
+
   subscribe(fromLevel: number) {
-    console.log('subscribed');
+    this.subscribed = true;
     this.blocksService
       .getSubscriptionAfterLevel(fromLevel)
       .subscribe((result: any) => {
@@ -53,6 +64,7 @@ export class LastBlocksComponent implements OnInit {
   }
 
   getBlocks(cursor: string | null): Observable<BlockRecordConnection> {
+    this.queryRunning = true;
     return this.apollo
       .watchQuery({
         query: gql`
@@ -83,6 +95,7 @@ export class LastBlocksComponent implements OnInit {
       })
       .valueChanges.pipe(
         map((result: any) => {
+          this.queryRunning = false;
           this.result = result;
           const blocks = result.data.blocks as BlockRecordConnection;
           this.blocks?.push(blocks);

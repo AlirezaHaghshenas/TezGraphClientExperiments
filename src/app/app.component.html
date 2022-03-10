@@ -1,7 +1,9 @@
-<a routerLink="last-blocks">Last Blocks</a> &nbsp;
-<a routerLink="last-operations">Last Operations</a> &nbsp;
-<a routerLink="token-holders">Token Owners</a>
+<nav mat-tab-nav-bar [tabPanel]="tabPanel">
+  <a mat-tab-link routerLink="last-blocks">Last Blocks <mat-icon>grid_view</mat-icon></a>
+  <a mat-tab-link routerLink="last-operations">Last Operations <mat-icon>receipt_long</mat-icon></a>
+  <a mat-tab-link routerLink="token-holders">Token Owners <mat-icon>generating_tokens</mat-icon></a>
+</nav>
 
-<hr />
-
-<router-outlet></router-outlet>
+<mat-tab-nav-panel #tabPanel>
+  <router-outlet></router-outlet>
+</mat-tab-nav-panel>

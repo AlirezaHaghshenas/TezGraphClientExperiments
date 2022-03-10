@@ -1,10 +1,27 @@
-Source: <input type="text" [(ngModel)]="source"><button (click)="applyFilter()">Apply Filter</button>
+<mat-progress-bar mode="query" *ngIf="isWorking">
+</mat-progress-bar>
 
-<div *ngFor="let list of operations">
-  <div *ngFor="let operation of list.edges">
-    <b>Kind:</b> {{operation.node?.kind}}
-    <b>Source:</b> {{operation.node?.source?.address}}
-    <b>Level:</b> {{operation.node?.block?.level}}
+<mat-form-field appearance="fill">
+  <mat-label>
+    Source
+  </mat-label>
+  <input matInput type="text" [(ngModel)]="source">
+</mat-form-field> &nbsp;
+<button mat-raised-button color="primary" (click)="applyFilter()">Apply Filter</button>
+
+<div *ngFor="let list of operations" class="flex-container">
+  <div *ngFor="let operation of list.edges" class="flex-content">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>{{operation.node?.kind}}</mat-panel-title>
+        <mat-panel-title matTooltip="Level">{{operation.node?.block?.level | number}}</mat-panel-title>
+      </mat-expansion-panel-header>
+      <p class="hash-container">
+        <b>Source:</b> <span class="hash" (click)="copyToClipboard(operation.node?.source?.address)"
+          matTooltipClass="hash-tooltip"
+          [matTooltip]="operation.node?.source?.address">{{operation.node?.source?.address}}</span>
+      </p>
+    </mat-expansion-panel>
   </div>
 </div>
-<button (click)="loadMore()" *ngIf="operations.length">Load More</button>
+<button mat-raised-button color="primary" (click)="loadMore()" *ngIf="operations.length">Load More</button>

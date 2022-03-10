@@ -1,6 +1,18 @@
-{{entries.length}} of {{total_count}}
-
-<br />
+<mat-progress-bar [mode]="total_count === undefined ? 'indeterminate' : gettingInitialData ? 'query' : 'determinate'"
+  [value]="entries.length * 100 / (total_count ?? 1)">
+</mat-progress-bar>
+<br/>
+<h3 style="text-align: center;">
+  <span *ngIf="message">
+    {{message}}
+  </span>
+  <span *ngIf="!message && !total_count">
+    Getting the initial list and number of bigmap values
+  </span>
+  <span *ngIf="!message && total_count">
+    {{entries.length}} of {{total_count}}
+  </span>
+</h3>
 
 <span *ngIf="tokenOwners">
   Number of token Holders: {{tokenOwners?.length}} <br />

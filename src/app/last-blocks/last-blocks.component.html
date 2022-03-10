@@ -1,25 +1,43 @@
-<h2>Subscription Blocks: {{subscriptionBlocks.length}}</h2>
-<div class="block-container reverse">
-  <div *ngFor="let block of subscriptionBlocks" class="block">
-    <b>{{block.header.level}}</b> <br/>
-    {{block.header.timestamp}} <br/>
-      <h6> {{block.hash}} </h6>
+<h2>Subscribed for Blocks: receiving... {{subscriptionBlocks.length | number}}</h2>
+<mat-progress-bar mode="buffer" *ngIf="subscribed"></mat-progress-bar>
+<div class="flex-container reverse">
+  <div *ngFor="let block of subscriptionBlocks | reverse" class="flex-content">
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>{{block.header.level | number}}</mat-panel-title>
+      </mat-expansion-panel-header>
+      <p class="hash-container">
+        <mat-icon>schedule</mat-icon><span>{{block.header.timestamp | date:'medium'}}</span>
+      </p>
+      <p class="hash-container">
+        <mat-icon>tag</mat-icon>
+        <span class="hash" (click)="copyToClipboard(block.hash)" matTooltip="{{block.hash}}"
+          matTooltipClass="hash-tooltip">{{block.hash}}</span>
+      </p>
+    </mat-expansion-panel>
   </div>
 </div>
 
-<h2>Query Blocks: {{blocks[0]?.total_count}}</h2>
-<div class="block-container">
+<mat-progress-bar mode="query" *ngIf="queryRunning"></mat-progress-bar>
+<h2>Query Blocks: {{blocks[0]?.total_count | number}}</h2>
+<div class="flex-container">
   <ng-container *ngFor="let connection of blocks, index as index">
-    <h1 class="block">Page {{index + 1}}</h1>
-    <div *ngFor="let block of connection?.edges" class="block">
-      <b>{{block.node?.level}}</b> <br/>
-      {{block.node?.timestamp}} <br/>
-      <h6> {{block.node?.hash}} </h6>
+    <div *ngFor="let block of connection?.edges" class="flex-content">
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{block.node?.level | number}}</mat-panel-title>
+        </mat-expansion-panel-header>
+        <p class="hash-container">
+          <mat-icon>schedule</mat-icon><span>{{block.node?.timestamp | date:'medium'}}</span>
+        </p>
+        <p class="hash-container">
+          <mat-icon>tag</mat-icon>
+          <span class="hash" (click)="copyToClipboard(block.node?.hash)" matTooltip="{{block.node?.hash}}"
+            matTooltipClass="hash-tooltip">{{block.node?.hash}}</span>
+        </p>
+      </mat-expansion-panel>
     </div>
   </ng-container>
-  <div class="block" style="display: table;">
-    <span style="vertical-align: middle; display: table-cell; margin-top: auto; margin-bottom: auto;">
-      <button (click)="loadMore()" *ngIf="blocks.length">Load More</button>
-    </span>
-  </div>
 </div>
+
+<button mat-raised-button color="primary" (click)="loadMore()" *ngIf="blocks.length">Load More</button>

@@ -1,1 +1,45 @@
 /* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.flex-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.reverse {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.flex-content {
+  width: 250px;
+  border: #1976d2 1px solid;
+  margin: 1px;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.hash-container {
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+}
+.hash-container>span {
+  margin-left: 5px;
+}
+.hash-container .hash {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.hash-tooltip {
+  max-width: 600px !important;
+}

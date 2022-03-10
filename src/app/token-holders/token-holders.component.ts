@@ -23,6 +23,8 @@ export class TokenHoldersComponent implements OnInit {
   numberOfOwners?: number;
   totalTokens?: number;
   average?: number;
+  gettingInitialData = false;
+  message?: string;
 
   constructor(private readonly apollo: Apollo) {}
 
@@ -31,6 +33,7 @@ export class TokenHoldersComponent implements OnInit {
   }
 
   async getBigmapInfo() {
+    this.gettingInitialData = true;
     const info = this.apollo
       .query({
         query: gql`
@@ -64,17 +67,25 @@ export class TokenHoldersComponent implements OnInit {
           bigmap_id: this.bigmapId,
         },
       })
-      .subscribe((result: any) => {
-        const bigmaps = result.data.bigmaps as BigmapRecordConnection;
-        const bigmap = bigmaps.edges![0].node!;
-        this.total_count = bigmap.keys.total_count;
-        this.keyStorageSchema = new Schema(bigmap.key_type);
-        this.valueStorageSchema = new Schema(bigmap.value_type);
-        this.entries = bigmap.keys.edges!.map((k) => ({
-          key: this.keyStorageSchema?.Execute(k.node!.key),
-          value: this.valueStorageSchema?.Execute(k.node!.current_value.value),
-        }));
-        this.getNextPage(bigmap.keys.page_info);
+      .subscribe({
+        next: (result: any) => {
+          const bigmaps = result.data.bigmaps as BigmapRecordConnection;
+          const bigmap = bigmaps.edges![0].node!;
+          this.total_count = bigmap.keys.total_count;
+          this.keyStorageSchema = new Schema(bigmap.key_type);
+          this.valueStorageSchema = new Schema(bigmap.value_type);
+          this.entries = bigmap.keys.edges!.map((k) => ({
+            key: this.keyStorageSchema?.Execute(k.node!.key),
+            value: this.valueStorageSchema?.Execute(
+              k.node!.current_value.value
+            ),
+          }));
+          this.getNextPage(bigmap.keys.page_info);
+          this.gettingInitialData = false;
+        },
+        error: (error: any) => {
+          this.gettingInitialData = false;
+        },
       });
   }
 
