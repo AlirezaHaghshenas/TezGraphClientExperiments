@@ -1,7 +1,7 @@
-<mat-progress-bar [mode]="total_count === undefined ? 'indeterminate' : gettingInitialData ? 'query' : 'determinate'"
+<mat-progress-bar [mode]="total_count === undefined ? 'indeterminate' : initialQueries > 0 ? 'query' : 'determinate'"
   [value]="entries.length * 100 / (total_count ?? 1)">
 </mat-progress-bar>
-<br/>
+<br />
 <h3 style="text-align: center;">
   <span *ngIf="message">
     {{message}}
@@ -21,4 +21,10 @@
   Number of token Holders (Calculation 2): {{numberOfOwners}}<br />
   Total Tokens: {{totalTokens}}<br />
   Average: {{average}}<br />
+
+  <br /><br /><br />
+  Total token sales: {{totalTokenSpends}}<br />
+  Total time of keeping tokens: {{totalTokenKeepingInSecond | number}} second<br />
+  Average Duration of keeping Tokens: {{averageTokenKeepingInSecond | number}} second<br />
+
 </span>

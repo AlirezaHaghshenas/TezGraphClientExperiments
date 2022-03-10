@@ -63,13 +63,13 @@ import { ReversePipe } from './utils/reverse-pipe';
       provide: APOLLO_OPTIONS,
       useFactory: (httpLink: HttpLink) => {
         const http = httpLink.create({
-          // uri: 'http://localhost:3000/graphql',
-          uri: 'https://mainnet.tezgraph.tez.ie/graphql',
+          uri: 'http://localhost:3000/graphql',
+          // uri: 'https://mainnet.tezgraph.tez.ie/graphql',
         });
 
         const ws = new WebSocketLink({
-          // uri: `ws://localhost:3000/graphql`,
-          uri: `wss://mainnet.tezgraph.tez.ie/graphql`,
+          uri: `ws://localhost:3000/graphql`,
+          // uri: `wss://mainnet.tezgraph.tez.ie/graphql`,
           options: {
             reconnect: true,
           },

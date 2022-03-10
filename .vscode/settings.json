@@ -4,6 +4,7 @@
         "asynciterable",
         "Bigmap",
         "bigmaps",
+        "bignumber",
         "Ciphertext",
         "ciphertexts",
         "devkit",
