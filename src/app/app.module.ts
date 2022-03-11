@@ -29,6 +29,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ReversePipe } from './utils/reverse-pipe';
+import { TokenMetadataComponent } from './token-metadata/token-metadata.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +37,7 @@ import { ReversePipe } from './utils/reverse-pipe';
     LastBlocksComponent,
     LastOperationsComponent,
     TokenHoldersComponent,
+    TokenMetadataComponent,
     ReversePipe,
   ],
   imports: [
