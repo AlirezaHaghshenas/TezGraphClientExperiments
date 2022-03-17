@@ -7,6 +7,18 @@
   </mat-label>
   <input matInput type="text" [(ngModel)]="source">
 </mat-form-field> &nbsp;
+<mat-form-field appearance="fill">
+  <mat-label>
+    Destination
+  </mat-label>
+  <input matInput type="text" [(ngModel)]="destination">
+</mat-form-field> &nbsp;
+<mat-form-field appearance="fill">
+  <mat-label>
+    Hash
+  </mat-label>
+  <input matInput type="text" [(ngModel)]="hash">
+</mat-form-field> &nbsp;
 <button mat-raised-button color="primary" (click)="applyFilter()">Apply Filter</button>
 
 <div *ngFor="let list of operations" class="flex-container">
@@ -20,8 +32,28 @@
         <b>Source:</b> <span class="hash" (click)="copyToClipboard(operation.node?.source?.address)"
           matTooltipClass="hash-tooltip"
           [matTooltip]="operation.node?.source?.address">{{operation.node?.source?.address}}</span>
+        <button mat-icon-button (click)="getDetails(operation.node!)">
+          <mat-icon matTooltip="Get Details">info</mat-icon>
+        </button>
       </p>
     </mat-expansion-panel>
   </div>
 </div>
 <button mat-raised-button color="primary" (click)="loadMore()" *ngIf="operations.length">Load More</button>
+
+<span>{{message}}</span>
+
+<div *ngIf="tokenBalanceChanges && tokenBalanceChanges.length">
+  <h2>Token Balance Changes</h2>
+  <div class="flex-container">
+    <div *ngFor="let balanceUpdate of tokenBalanceChanges" class="flex-content">
+      <pre>{{balanceUpdate.key | json}}</pre>
+      <pre>{{balanceUpdate.value | json}}</pre>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="tokenBalanceChanges && tokenBalanceChanges.length" class="flex-container">
+  <h2>Raw Details</h2>
+  <pre>{{operationDetails | json}}</pre>
+</div>
