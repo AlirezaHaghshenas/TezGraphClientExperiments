@@ -18,6 +18,7 @@ export class LastBlocksComponent implements OnInit {
   lastBlockLevel?: number;
   queryRunning = false;
   subscribed = false;
+  messages: any[] = [];
 
   constructor(
     private readonly apollo: Apollo,
@@ -46,14 +47,18 @@ export class LastBlocksComponent implements OnInit {
 
   subscribe(fromLevel: number) {
     this.subscribed = true;
-    this.blocksService
-      .getSubscriptionAfterLevel(fromLevel)
-      .subscribe((result: any) => {
+    this.blocksService.getSubscriptionAfterLevel(fromLevel).subscribe({
+      next: (result: any) => {
         console.log('data arrived');
         console.log(JSON.stringify(result));
         const blockAdded = result.data.blockAdded as BlockNotification;
         this.subscriptionBlocks.unshift(blockAdded);
-      });
+      },
+      error: (err: any) => {
+        this.subscribed = false;
+        this.messages.push(err);
+      },
+    });
   }
 
   loadMore() {

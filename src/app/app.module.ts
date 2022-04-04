@@ -16,6 +16,7 @@ import { LastBlocksComponent } from './last-blocks/last-blocks.component';
 import { FormsModule } from '@angular/forms';
 import { TokenHoldersComponent } from './token-holders/token-holders.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatBadgeModule} from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { ClipboardModule } from '@angular/cdk/clipboard';
@@ -48,6 +49,7 @@ import { TokenMetadataComponent } from './token-metadata/token-metadata.componen
     FormsModule,
     BrowserAnimationsModule,
     ClipboardModule,
+    MatBadgeModule,
     MatButtonModule,
     MatCardModule,
     MatExpansionModule,
@@ -65,13 +67,13 @@ import { TokenMetadataComponent } from './token-metadata/token-metadata.componen
       provide: APOLLO_OPTIONS,
       useFactory: (httpLink: HttpLink) => {
         const http = httpLink.create({
-          uri: 'http://localhost:3000/graphql',
-          // uri: 'https://mainnet.tezgraph.tez.ie/graphql',
+          // uri: 'http://localhost:3000/graphql',
+          uri: 'https://mainnet.tezgraph.tez.ie/graphql',
         });
 
         const ws = new WebSocketLink({
-          uri: `ws://localhost:3000/graphql`,
-          // uri: `wss://mainnet.tezgraph.tez.ie/graphql`,
+          // uri: `ws://localhost:3000/graphql`,
+          uri: `wss://mainnet.tezgraph.tez.ie/graphql`,
           options: {
             reconnect: true,
           },

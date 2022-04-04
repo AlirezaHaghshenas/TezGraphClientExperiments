@@ -41,3 +41,16 @@
 </div>
 
 <button mat-raised-button color="primary" (click)="loadMore()" *ngIf="blocks.length">Load More</button>
+
+<mat-accordion *ngIf="messages.length">
+  <mat-expansion-panel>
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <span style="color: red;">Messages {{messages.length}}</span>
+      </mat-panel-title>
+    </mat-expansion-panel-header>
+    <pre *ngFor="let message of messages">
+{{message | json}}
+    </pre>
+  </mat-expansion-panel>
+</mat-accordion>
