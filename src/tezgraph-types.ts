@@ -19,7 +19,6 @@ export type Scalars = {
   Float: number;
   Micheline: any;
   BigNumber: any;
-  Address: any;
   ProtocolHash: any;
   ChainId: any;
   OperationHash: any;
@@ -29,6 +28,8 @@ export type Scalars = {
   OperationsHash: any;
   ContextHash: any;
   NonceHash: any;
+  PayloadHash: any;
+  Address: any;
   Mutez: any;
   PositiveBigNumber: any;
   JSONObject: any;
@@ -132,47 +133,6 @@ export type LazySaplingStateUpdate = LazySaplingStateDiff & {
   updates: LazySaplingStateDiffUpdates;
 };
 
-export type BalanceUpdateContract = BalanceUpdate & {
-  __typename?: 'BalanceUpdateContract';
-  kind: BalanceUpdateKind;
-  change: Scalars['BigNumber'];
-  origin: BalanceUpdateOrigin;
-  contract: Scalars['Address'];
-};
-
-export type BalanceUpdate = {
-  kind: BalanceUpdateKind;
-  change: Scalars['BigNumber'];
-  origin: BalanceUpdateOrigin;
-};
-
-export enum BalanceUpdateKind {
-  Contract = 'contract',
-  Freezer = 'freezer'
-}
-
-export enum BalanceUpdateOrigin {
-  Block = 'block',
-  Migration = 'migration',
-  Subsidy = 'subsidy'
-}
-
-export type BalanceUpdateFreezer = BalanceUpdate & {
-  __typename?: 'BalanceUpdateFreezer';
-  kind: BalanceUpdateKind;
-  change: Scalars['BigNumber'];
-  origin: BalanceUpdateOrigin;
-  category: BalanceUpdateCategory;
-  delegate: Scalars['Address'];
-  cycle: Scalars['Int'];
-};
-
-export enum BalanceUpdateCategory {
-  Deposits = 'deposits',
-  Fees = 'fees',
-  Rewards = 'rewards'
-}
-
 export type ActivateAccountNotification = Operation & OperationNotification & OperationNotificationWithBalanceUpdates & {
   __typename?: 'ActivateAccountNotification';
   kind: OperationKind;
@@ -194,13 +154,16 @@ export enum OperationKind {
   Delegation = 'delegation',
   DoubleBakingEvidence = 'double_baking_evidence',
   DoubleEndorsementEvidence = 'double_endorsement_evidence',
+  DoublePreendorsementEvidence = 'double_preendorsement_evidence',
   Endorsement = 'endorsement',
   EndorsementWithSlot = 'endorsement_with_slot',
   Origination = 'origination',
+  Preendorsement = 'preendorsement',
   Proposals = 'proposals',
   RegisterGlobalConstant = 'register_global_constant',
   Reveal = 'reveal',
   SeedNonceRevelation = 'seed_nonce_revelation',
+  SetDepositsLimit = 'set_deposits_limit',
   Transaction = 'transaction'
 }
 
@@ -231,13 +194,16 @@ export type BlockNotification = {
   delegations: Array<DelegationNotification>;
   doubleBakingEvidences: Array<DoubleBakingEvidenceNotification>;
   doubleEndorsementEvidences: Array<DoubleEndorsementEvidenceNotification>;
+  doublePreendorsementEvidences: Array<DoublePreendorsementEvidenceNotification>;
   endorsements: Array<EndorsementNotification>;
   endorsementWithSlots: Array<EndorsementWithSlotNotification>;
   originations: Array<OriginationNotification>;
+  preendorsements: Array<PreendorsementNotification>;
   proposals: Array<ProposalsNotification>;
   registerGlobalConstants: Array<RegisterGlobalConstantNotification>;
   reveals: Array<RevealNotification>;
   seedNonceRevelations: Array<SeedNonceRevelationNotification>;
+  setDepositsLimits: Array<SetDepositsLimitNotification>;
   transactions: Array<TransactionNotification>;
 };
 
@@ -267,6 +233,11 @@ export type BlockNotificationDoubleEndorsementEvidencesArgs = {
 };
 
 
+export type BlockNotificationDoublePreendorsementEvidencesArgs = {
+  filter?: InputMaybe<DoublePreendorsementEvidenceFilter>;
+};
+
+
 export type BlockNotificationEndorsementsArgs = {
   filter?: InputMaybe<EndorsementFilter>;
 };
@@ -279,6 +250,11 @@ export type BlockNotificationEndorsementWithSlotsArgs = {
 
 export type BlockNotificationOriginationsArgs = {
   filter?: InputMaybe<OriginationFilter>;
+};
+
+
+export type BlockNotificationPreendorsementsArgs = {
+  filter?: InputMaybe<PreendorsementFilter>;
 };
 
 
@@ -302,6 +278,11 @@ export type BlockNotificationSeedNonceRevelationsArgs = {
 };
 
 
+export type BlockNotificationSetDepositsLimitsArgs = {
+  filter?: InputMaybe<SetDepositsLimitFilter>;
+};
+
+
 export type BlockNotificationTransactionsArgs = {
   filter?: InputMaybe<TransactionFilter>;
 };
@@ -317,9 +298,12 @@ export type BlockHeader = {
   operations_hash: Scalars['OperationsHash'];
   fitness: Array<Scalars['String']>;
   context: Scalars['ContextHash'];
-  priority: Scalars['Int'];
+  priority?: Maybe<Scalars['Int']>;
   proof_of_work_nonce: Scalars['String'];
   seed_nonce_hash?: Maybe<Scalars['NonceHash']>;
+  liquidity_baking_escape_vote: Scalars['Boolean'];
+  payload_hash?: Maybe<Scalars['PayloadHash']>;
+  payload_round?: Maybe<Scalars['Int']>;
 };
 
 export type ActivateAccountFilter = {
@@ -459,14 +443,26 @@ export type DoubleEndorsementEvidenceFilter = {
   or?: InputMaybe<Array<DoubleEndorsementEvidenceFilter>>;
 };
 
+export type DoublePreendorsementEvidenceFilter = {
+  delegate?: InputMaybe<NullableAddressArrayFilter>;
+  hash?: InputMaybe<NullableOperationHashFilter>;
+  protocol?: InputMaybe<ProtocolHashFilter>;
+  branch?: InputMaybe<BlockHashFilter>;
+  and?: InputMaybe<Array<DoublePreendorsementEvidenceFilter>>;
+  or?: InputMaybe<Array<DoublePreendorsementEvidenceFilter>>;
+};
+
 export type EndorsementNotification = Endorsement & Operation & OperationNotification & OperationNotificationWithBalanceUpdates & {
   __typename?: 'EndorsementNotification';
   kind: OperationKind;
   operation_group: OperationGroup;
   block?: Maybe<BlockNotification>;
   origin: OperationOrigin;
-  metadata?: Maybe<EndorsementMetadata>;
+  metadata?: Maybe<EndorsementNotificationMetadata>;
   level: Scalars['Int'];
+  slot?: Maybe<Scalars['Int']>;
+  round?: Maybe<Scalars['Int']>;
+  block_payload_hash?: Maybe<Scalars['PayloadHash']>;
 };
 
 export type Endorsement = {
@@ -475,8 +471,7 @@ export type Endorsement = {
 };
 
 export type EndorsementMetadata = {
-  delegate: Scalars['Address'];
-  slots: Array<Scalars['Int']>;
+  slots?: Maybe<Array<Scalars['Int']>>;
 };
 
 export type OperationNotificationWithBalanceUpdates = {
@@ -517,6 +512,9 @@ export type InlinedEndorsementContents = {
   __typename?: 'InlinedEndorsementContents';
   kind: InlinedEndorsementKind;
   level: Scalars['Int'];
+  slot?: Maybe<Scalars['Int']>;
+  round?: Maybe<Scalars['Int']>;
+  block_payload_hash?: Maybe<Scalars['PayloadHash']>;
 };
 
 export enum InlinedEndorsementKind {
@@ -542,6 +540,15 @@ export type OriginationFilter = {
   branch?: InputMaybe<BlockHashFilter>;
   and?: InputMaybe<Array<OriginationFilter>>;
   or?: InputMaybe<Array<OriginationFilter>>;
+};
+
+export type PreendorsementFilter = {
+  delegate?: InputMaybe<NullableAddressFilter>;
+  hash?: InputMaybe<NullableOperationHashFilter>;
+  protocol?: InputMaybe<ProtocolHashFilter>;
+  branch?: InputMaybe<BlockHashFilter>;
+  and?: InputMaybe<Array<PreendorsementFilter>>;
+  or?: InputMaybe<Array<PreendorsementFilter>>;
 };
 
 export type ProposalsNotification = Operation & OperationNotification & {
@@ -599,6 +606,16 @@ export type SeedNonceRevelationFilter = {
   or?: InputMaybe<Array<SeedNonceRevelationFilter>>;
 };
 
+export type SetDepositsLimitFilter = {
+  source?: InputMaybe<AddressFilter>;
+  status?: InputMaybe<NullableOperationResultStatusFilter>;
+  hash?: InputMaybe<NullableOperationHashFilter>;
+  protocol?: InputMaybe<ProtocolHashFilter>;
+  branch?: InputMaybe<BlockHashFilter>;
+  and?: InputMaybe<Array<SetDepositsLimitFilter>>;
+  or?: InputMaybe<Array<SetDepositsLimitFilter>>;
+};
+
 export type TransactionFilter = {
   source?: InputMaybe<AddressFilter>;
   destination?: InputMaybe<AddressFilter>;
@@ -626,6 +643,57 @@ export type SimpleOperationMetadata = {
   __typename?: 'SimpleOperationMetadata';
   balance_updates: Array<BalanceUpdate>;
 };
+
+export type BalanceUpdate = {
+  __typename?: 'BalanceUpdate';
+  kind: BalanceUpdateKind;
+  change: Scalars['BigNumber'];
+  origin: BalanceUpdateOrigin;
+  contract?: Maybe<Scalars['Address']>;
+  category?: Maybe<BalanceUpdateCategory>;
+  delegate?: Maybe<Scalars['Address']>;
+  cycle?: Maybe<Scalars['Int']>;
+};
+
+export enum BalanceUpdateKind {
+  Accumulator = 'accumulator',
+  Burned = 'burned',
+  Commitment = 'commitment',
+  Contract = 'contract',
+  Freezer = 'freezer',
+  Minted = 'minted'
+}
+
+export enum BalanceUpdateOrigin {
+  Block = 'block',
+  Migration = 'migration',
+  Simulation = 'simulation',
+  Subsidy = 'subsidy'
+}
+
+export enum BalanceUpdateCategory {
+  BakingRewards = 'baking_rewards',
+  Rewards = 'rewards',
+  Fees = 'fees',
+  Deposits = 'deposits',
+  LegacyRewards = 'legacy_rewards',
+  LegacyFees = 'legacy_fees',
+  LegacyDeposits = 'legacy_deposits',
+  BlockFees = 'block_fees',
+  NonceRevelationRewards = 'nonce_revelation_rewards',
+  DoubleSigningEvidenceRewards = 'double_signing_evidence_rewards',
+  EndorsingRewards = 'endorsing_rewards',
+  BakingBonuses = 'baking_bonuses',
+  StorageFees = 'storage_fees',
+  Punishments = 'punishments',
+  LostEndorsingRewards = 'lost_endorsing_rewards',
+  Subsidy = 'subsidy',
+  Burned = 'burned',
+  Commitment = 'commitment',
+  Bootstrap = 'bootstrap',
+  Invoice = 'invoice',
+  Minted = 'minted'
+}
 
 export type BigMapAlloc = BigMapDiff & {
   __typename?: 'BigMapAlloc';
@@ -711,6 +779,7 @@ export enum InternalOperationKind {
   Origination = 'origination',
   RegisterGlobalConstant = 'register_global_constant',
   Reveal = 'reveal',
+  SetDepositsLimit = 'set_deposits_limit',
   Transaction = 'transaction'
 }
 
@@ -739,9 +808,9 @@ export type DelegationNotification = Operation & OperationNotification & Operati
   counter: Scalars['PositiveBigNumber'];
   gas_limit: Scalars['PositiveBigNumber'];
   storage_limit: Scalars['PositiveBigNumber'];
-  delegate?: Maybe<Scalars['Address']>;
   metadata?: Maybe<DelegationNotificationMetadata>;
   source: Scalars['Address'];
+  delegate?: Maybe<Scalars['Address']>;
 };
 
 export type MoneyOperation = {
@@ -770,7 +839,6 @@ export type Delegation = {
   counter?: Maybe<Scalars['PositiveBigNumber']>;
   gas_limit?: Maybe<Scalars['PositiveBigNumber']>;
   storage_limit?: Maybe<Scalars['PositiveBigNumber']>;
-  delegate?: Maybe<Scalars['Address']>;
   metadata?: Maybe<DelegationMetadata>;
 };
 
@@ -816,8 +884,9 @@ export type DoubleEndorsementEvidenceNotification = Operation & OperationNotific
 export type EndorsementNotificationMetadata = EndorsementMetadata & {
   __typename?: 'EndorsementNotificationMetadata';
   balance_updates: Array<BalanceUpdate>;
+  slots?: Maybe<Array<Scalars['Int']>>;
   delegate: Scalars['Address'];
-  slots: Array<Scalars['Int']>;
+  endorsement_power?: Maybe<Scalars['Int']>;
 };
 
 export type AbstractEndorsementNotification = Operation & OperationNotification & OperationNotificationWithBalanceUpdates & {
@@ -900,8 +969,8 @@ export type OriginationNotification = Operation & OperationNotification & Operat
   storage_limit: Scalars['PositiveBigNumber'];
   source: Scalars['Address'];
   balance: Scalars['Mutez'];
-  delegate?: Maybe<Scalars['Address']>;
   metadata?: Maybe<OriginationNotificationMetadata>;
+  delegate?: Maybe<Scalars['Address']>;
   script: ScriptedContracts;
 };
 
@@ -912,7 +981,6 @@ export type Origination = {
   gas_limit?: Maybe<Scalars['PositiveBigNumber']>;
   storage_limit?: Maybe<Scalars['PositiveBigNumber']>;
   balance?: Maybe<Scalars['Mutez']>;
-  delegate?: Maybe<Scalars['Address']>;
   metadata?: Maybe<OriginationMetadata>;
 };
 
@@ -1094,9 +1162,9 @@ export type TransactionNotification = Operation & OperationNotification & Operat
   storage_limit: Scalars['PositiveBigNumber'];
   source: Scalars['Address'];
   amount: Scalars['Mutez'];
-  destination: Scalars['Address'];
   parameters?: Maybe<TransactionParameters>;
   metadata?: Maybe<TransactionNotificationMetadata>;
+  destination: Scalars['Address'];
 };
 
 export type Transaction = {
@@ -1106,7 +1174,6 @@ export type Transaction = {
   gas_limit?: Maybe<Scalars['PositiveBigNumber']>;
   storage_limit?: Maybe<Scalars['PositiveBigNumber']>;
   amount?: Maybe<Scalars['Mutez']>;
-  destination?: Maybe<Scalars['Address']>;
   parameters?: Maybe<TransactionParameters>;
   metadata?: Maybe<TransactionMetadata>;
 };
@@ -1123,6 +1190,96 @@ export type LazySaplingStateStorageDiff = LazyStorageDiff & {
   kind: LazyStorageDiffKind;
   id: Scalars['BigNumber'];
   sapling_state_diff: LazySaplingStateDiff;
+};
+
+export type DoublePreendorsementEvidenceNotification = Operation & OperationNotification & OperationNotificationWithBalanceUpdates & {
+  __typename?: 'DoublePreendorsementEvidenceNotification';
+  kind: OperationKind;
+  operation_group: OperationGroup;
+  block?: Maybe<BlockNotification>;
+  origin: OperationOrigin;
+  op1: InlinedPreendorsement;
+  op2: InlinedPreendorsement;
+  metadata?: Maybe<SimpleOperationMetadata>;
+};
+
+export type InlinedPreendorsement = {
+  __typename?: 'InlinedPreendorsement';
+  branch: Scalars['BlockHash'];
+  operations: InlinedPreendorsementContents;
+  signature?: Maybe<Scalars['Signature']>;
+};
+
+export type InlinedPreendorsementContents = {
+  __typename?: 'InlinedPreendorsementContents';
+  kind: InlinedPreendorsementKind;
+  level: Scalars['Int'];
+  slot: Scalars['Int'];
+  round: Scalars['Int'];
+  block_payload_hash: Scalars['PayloadHash'];
+};
+
+export enum InlinedPreendorsementKind {
+  Preendorsement = 'preendorsement'
+}
+
+export type PreendorsementNotification = Operation & OperationNotification & OperationNotificationWithBalanceUpdates & {
+  __typename?: 'PreendorsementNotification';
+  kind: OperationKind;
+  operation_group: OperationGroup;
+  block?: Maybe<BlockNotification>;
+  origin: OperationOrigin;
+  slot: Scalars['Int'];
+  level: Scalars['Int'];
+  round: Scalars['Int'];
+  block_payload_hash: Scalars['PayloadHash'];
+  metadata?: Maybe<PreendorsementNotificationMetadata>;
+};
+
+export type PreendorsementNotificationMetadata = {
+  __typename?: 'PreendorsementNotificationMetadata';
+  balance_updates: Array<BalanceUpdate>;
+  delegate: Scalars['Address'];
+  preendorsement_power: Scalars['Int'];
+};
+
+export type SetDepositsLimitNotificationResult = OperationResult & {
+  __typename?: 'SetDepositsLimitNotificationResult';
+  status: OperationResultStatus;
+  consumed_gas?: Maybe<Scalars['PositiveBigNumber']>;
+  consumed_milligas?: Maybe<Scalars['PositiveBigNumber']>;
+  errors?: Maybe<Array<Scalars['JSONObject']>>;
+};
+
+export type InternalSetDepositsLimitResult = InternalOperationResult & {
+  __typename?: 'InternalSetDepositsLimitResult';
+  kind: InternalOperationKind;
+  source: Scalars['Address'];
+  nonce: Scalars['Int'];
+  result: SetDepositsLimitNotificationResult;
+  limit?: Maybe<Scalars['Mutez']>;
+};
+
+export type SetDepositsLimitNotification = Operation & OperationNotification & OperationNotificationWithBalanceUpdates & MoneyOperation & MoneyOperationNotification & {
+  __typename?: 'SetDepositsLimitNotification';
+  kind: OperationKind;
+  operation_group: OperationGroup;
+  block?: Maybe<BlockNotification>;
+  origin: OperationOrigin;
+  fee: Scalars['Mutez'];
+  counter: Scalars['PositiveBigNumber'];
+  gas_limit: Scalars['PositiveBigNumber'];
+  storage_limit: Scalars['PositiveBigNumber'];
+  source: Scalars['Address'];
+  limit?: Maybe<Scalars['Mutez']>;
+  metadata?: Maybe<SetDepositsLimitNotificationMetadata>;
+};
+
+export type SetDepositsLimitNotificationMetadata = OperationMetadata & {
+  __typename?: 'SetDepositsLimitNotificationMetadata';
+  balance_updates: Array<BalanceUpdate>;
+  internal_operation_results?: Maybe<Array<InternalOperationResult>>;
+  operation_result: SetDepositsLimitNotificationResult;
 };
 
 export type RevealResultRecord = OperationResult & RevealResult & {
@@ -1152,6 +1309,8 @@ export type RevealRecord = Operation & OperationRecord & MoneyOperation & MoneyO
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1171,6 +1330,8 @@ export type OperationRecord = {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1358,7 +1519,7 @@ export type BigmapRecord = {
   value_type_michelson: Scalars['String'];
   contract?: Maybe<AccountRecord>;
   block: BlockRecord;
-  id?: Maybe<Scalars['BigNumber']>;
+  id: Scalars['BigNumber'];
   batch_position: Scalars['BigNumber'];
   operation?: Maybe<OperationRecord>;
   keys: BigmapKeyRecordConnection;
@@ -1389,9 +1550,9 @@ export type BigmapKeyRecordEdge = {
 
 export type BigmapKeyRecord = {
   __typename?: 'BigmapKeyRecord';
-  key_hash?: Maybe<Scalars['String']>;
+  key_hash: Scalars['String'];
   key: Scalars['Micheline'];
-  key_micheline_json: Scalars['Micheline'];
+  key_micheline_json: Scalars['String'];
   key_michelson: Scalars['String'];
   values_history: BigmapValueRecordConnection;
   current_value: BigmapValueRecord;
@@ -1424,9 +1585,9 @@ export type BigmapValueRecord = {
   key_hash: Scalars['String'];
   kind: BigmapOperationKind;
   key: Scalars['Micheline'];
-  value?: Maybe<Scalars['Micheline']>;
   key_micheline_json: Scalars['String'];
   key_michelson: Scalars['String'];
+  value?: Maybe<Scalars['Micheline']>;
   value_micheline_json?: Maybe<Scalars['Micheline']>;
   value_michelson?: Maybe<Scalars['String']>;
   contract: AccountRecord;
@@ -1435,7 +1596,7 @@ export type BigmapValueRecord = {
   batch_position: Scalars['BigNumber'];
   previous?: Maybe<BigmapValueRecord>;
   operation: OperationRecord;
-  bigmap: Bigmap;
+  bigmap: BigmapRecord;
 };
 
 export enum BigmapOperationKind {
@@ -1445,35 +1606,22 @@ export enum BigmapOperationKind {
   Copy = 'copy'
 }
 
-export type Bigmap = {
-  __typename?: 'Bigmap';
-  annots?: Maybe<Scalars['String']>;
-  key_type: Scalars['Micheline'];
-  value_type?: Maybe<Scalars['Micheline']>;
-  key_type_micheline_json: Scalars['String'];
-  key_type_michelson: Scalars['String'];
-  value_type_micheline_json: Scalars['String'];
-  value_type_michelson: Scalars['String'];
-  contract?: Maybe<AccountRecord>;
-  block: BlockRecord;
-  id?: Maybe<Scalars['BigNumber']>;
-  batch_position: Scalars['BigNumber'];
-  operation?: Maybe<OperationRecord>;
-  keys: BigmapKeyRecordConnection;
+export type BigmapValueOrderByInput = {
+  field: BigmapValueOrderByField;
+  direction: OrderByDirection;
 };
 
+export enum BigmapValueOrderByField {
+  BlockLevel = 'block_level'
+}
 
-export type BigmapKeysArgs = {
-  before?: InputMaybe<Scalars['Cursor']>;
-  after?: InputMaybe<Scalars['Cursor']>;
-  first?: InputMaybe<Scalars['Int']>;
-  last?: InputMaybe<Scalars['Int']>;
-  filter?: InputMaybe<BigmapKeyFilterInBigmap>;
-  order_by?: InputMaybe<BigmapKeyOrderByInput>;
-};
+export enum OrderByDirection {
+  Asc = 'asc',
+  Desc = 'desc'
+}
 
 export type BigmapKeyFilterInBigmap = {
-  keys?: InputMaybe<Array<Scalars['String']>>;
+  keys?: InputMaybe<Array<Scalars['Micheline']>>;
 };
 
 export type BigmapKeyOrderByInput = {
@@ -1483,20 +1631,6 @@ export type BigmapKeyOrderByInput = {
 
 export enum BigmapKeyOrderByField {
   Key = 'key'
-}
-
-export enum OrderByDirection {
-  Asc = 'asc',
-  Desc = 'desc'
-}
-
-export type BigmapValueOrderByInput = {
-  field: BigmapValueOrderByField;
-  direction: OrderByDirection;
-};
-
-export enum BigmapValueOrderByField {
-  BlockLevel = 'block_level'
 }
 
 export type BigmapOrderByInput = {
@@ -1526,7 +1660,7 @@ export type OperationsFilterInAccount = {
   hash?: InputMaybe<Scalars['OperationHash']>;
   batch_position?: InputMaybe<Scalars['Int']>;
   internal?: InputMaybe<Scalars['Int']>;
-  kind?: InputMaybe<OperationRecordKind>;
+  kind?: InputMaybe<Array<OperationRecordKind>>;
   level?: InputMaybe<Scalars['Int']>;
   block_hash?: InputMaybe<Scalars['BlockHash']>;
   public_key?: InputMaybe<Scalars['PublicKey']>;
@@ -1536,6 +1670,7 @@ export type OperationsFilterInAccount = {
   amount?: InputMaybe<MutezRangeFilter>;
   fee?: InputMaybe<MutezRangeFilter>;
   status?: InputMaybe<OperationRecordStatus>;
+  level_range?: InputMaybe<IntRangeFilter>;
   relationship_type: AccountToOperationRelationshipType;
 };
 
@@ -1576,11 +1711,19 @@ export enum OperationRecordStatus {
   Skipped = 'skipped'
 }
 
+export type IntRangeFilter = {
+  lte?: InputMaybe<Scalars['Int']>;
+  gte?: InputMaybe<Scalars['Int']>;
+};
+
 export enum AccountToOperationRelationshipType {
   Source = 'source',
   Destination = 'destination',
-  Contract = 'contract',
-  Delegate = 'delegate'
+  Sender = 'sender',
+  Receiver = 'receiver',
+  OriginatedContract = 'originated_contract',
+  EndorsementDelegate = 'endorsement_delegate',
+  DelegationDelegate = 'delegation_delegate'
 }
 
 export type OperationsOrderByInput = {
@@ -1601,6 +1744,8 @@ export type MoneyOperationRecord = {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
   fee: Scalars['Mutez'];
   counter?: Maybe<Scalars['PositiveBigNumber']>;
@@ -1625,6 +1770,8 @@ export type ActivateAccountRecord = Operation & OperationRecord & {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1645,6 +1792,8 @@ export type BallotRecord = Operation & OperationRecord & {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1677,15 +1826,17 @@ export type DelegationRecord = Operation & OperationRecord & MoneyOperation & Mo
   counter?: Maybe<Scalars['PositiveBigNumber']>;
   gas_limit?: Maybe<Scalars['PositiveBigNumber']>;
   storage_limit?: Maybe<Scalars['PositiveBigNumber']>;
-  delegate?: Maybe<Scalars['Address']>;
   metadata?: Maybe<DelegationRecordMetadata>;
   hash: Scalars['OperationHash'];
   batch_position: Scalars['Int'];
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
   amount?: Maybe<Scalars['Mutez']>;
+  delegate?: Maybe<AccountRecord>;
 };
 
 
@@ -1705,6 +1856,8 @@ export type DoubleBakingEvidenceRecord = Operation & OperationRecord & {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1725,6 +1878,8 @@ export type DoubleEndorsementEvidenceRecord = Operation & OperationRecord & {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1739,8 +1894,8 @@ export type DoubleEndorsementEvidenceRecordBigmap_ValuesArgs = {
 
 export type EndorsementRecordMetadata = EndorsementMetadata & {
   __typename?: 'EndorsementRecordMetadata';
-  delegate: Scalars['Address'];
-  slots: Array<Scalars['Int']>;
+  slots?: Maybe<Array<Scalars['Int']>>;
+  delegate: AccountRecord;
 };
 
 export type EndorsementRecord = Operation & OperationRecord & Endorsement & {
@@ -1752,6 +1907,8 @@ export type EndorsementRecord = Operation & OperationRecord & Endorsement & {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
   reward?: Maybe<Scalars['Mutez']>;
   deposit?: Maybe<Scalars['Mutez']>;
@@ -1787,18 +1944,20 @@ export type OriginationRecord = Operation & OperationRecord & MoneyOperation & M
   gas_limit?: Maybe<Scalars['PositiveBigNumber']>;
   storage_limit?: Maybe<Scalars['PositiveBigNumber']>;
   balance?: Maybe<Scalars['Mutez']>;
-  delegate?: Maybe<Scalars['Address']>;
   metadata?: Maybe<OriginationRecordMetadata>;
   hash: Scalars['OperationHash'];
   batch_position: Scalars['Int'];
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
   contract_address: Scalars['Address'];
   storage_size?: Maybe<Scalars['Decimal']>;
   burned?: Maybe<Scalars['Mutez']>;
   contract?: Maybe<AccountRecord>;
+  delegate?: Maybe<AccountRecord>;
 };
 
 
@@ -1818,6 +1977,8 @@ export type ProposalRecord = Operation & OperationRecord & {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1838,6 +1999,8 @@ export type SeedNonceRevelationRecord = Operation & OperationRecord & {
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
 };
 
@@ -1871,7 +2034,6 @@ export type TransactionRecord = Operation & OperationRecord & MoneyOperation & M
   gas_limit?: Maybe<Scalars['PositiveBigNumber']>;
   storage_limit?: Maybe<Scalars['PositiveBigNumber']>;
   amount?: Maybe<Scalars['Mutez']>;
-  destination?: Maybe<Scalars['Address']>;
   parameters?: Maybe<TransactionParameters>;
   metadata?: Maybe<TransactionRecordMetadata>;
   hash: Scalars['OperationHash'];
@@ -1879,8 +2041,11 @@ export type TransactionRecord = Operation & OperationRecord & MoneyOperation & M
   internal: Scalars['Int'];
   block: BlockRecord;
   source?: Maybe<AccountRecord>;
+  receiver?: Maybe<AccountRecord>;
+  sender?: Maybe<AccountRecord>;
   bigmap_values: BigmapValueRecordConnection;
   storage_size?: Maybe<Scalars['Decimal']>;
+  destination: AccountRecord;
 };
 
 
@@ -1992,23 +2157,19 @@ export enum AccountOrderByField {
 }
 
 export type BigmapKeyFilter = {
-  keys?: InputMaybe<Array<Scalars['String']>>;
-  bigmap_id: Scalars['Float'];
+  keys?: InputMaybe<Array<Scalars['Micheline']>>;
+  bigmap_id: Scalars['BigNumber'];
 };
 
 export type BigmapFilter = {
   annots?: InputMaybe<Array<Scalars['String']>>;
-  contract?: InputMaybe<AccountInBigmapFilter>;
-  ids?: InputMaybe<Array<Scalars['Int']>>;
-};
-
-export type AccountInBigmapFilter = {
-  addresses?: InputMaybe<Array<Scalars['Address']>>;
+  contract?: InputMaybe<Array<Scalars['Address']>>;
+  ids?: InputMaybe<Array<Scalars['BigNumber']>>;
 };
 
 export type BigmapValueFilter = {
   key?: InputMaybe<Scalars['Micheline']>;
-  bigmap_id?: InputMaybe<Scalars['Float']>;
+  bigmap_id: Scalars['BigNumber'];
 };
 
 export type BlockRecordConnection = {
@@ -2030,11 +2191,6 @@ export type BlockFilter = {
   hashes?: InputMaybe<Array<Scalars['BlockHash']>>;
 };
 
-export type IntRangeFilter = {
-  lte?: InputMaybe<Scalars['Int']>;
-  gte?: InputMaybe<Scalars['Int']>;
-};
-
 export type BlockOrderByInput = {
   field: BlockOrderByField;
   direction: OrderByDirection;
@@ -2048,7 +2204,7 @@ export type OperationsFilter = {
   hash?: InputMaybe<Scalars['OperationHash']>;
   batch_position?: InputMaybe<Scalars['Int']>;
   internal?: InputMaybe<Scalars['Int']>;
-  kind?: InputMaybe<OperationRecordKind>;
+  kind?: InputMaybe<Array<OperationRecordKind>>;
   level?: InputMaybe<Scalars['Int']>;
   block_hash?: InputMaybe<Scalars['BlockHash']>;
   public_key?: InputMaybe<Scalars['PublicKey']>;
@@ -2058,10 +2214,14 @@ export type OperationsFilter = {
   amount?: InputMaybe<MutezRangeFilter>;
   fee?: InputMaybe<MutezRangeFilter>;
   status?: InputMaybe<OperationRecordStatus>;
-  source?: InputMaybe<Scalars['Address']>;
-  delegate?: InputMaybe<Scalars['Address']>;
-  contract_address?: InputMaybe<Scalars['Address']>;
-  destination?: InputMaybe<Scalars['Address']>;
+  level_range?: InputMaybe<IntRangeFilter>;
+  sources?: InputMaybe<Array<Scalars['Address']>>;
+  endorsement_delegates?: InputMaybe<Array<Scalars['Address']>>;
+  delegation_delegates?: InputMaybe<Array<Scalars['Address']>>;
+  originated_contracts?: InputMaybe<Array<Scalars['Address']>>;
+  destinations?: InputMaybe<Array<Scalars['Address']>>;
+  receivers?: InputMaybe<Array<Scalars['Address']>>;
+  senders?: InputMaybe<Array<Scalars['Address']>>;
 };
 
 export type Version = {
@@ -2084,13 +2244,16 @@ export type Subscription = {
   delegationAdded: DelegationNotification;
   doubleBakingEvidenceAdded: DoubleBakingEvidenceNotification;
   doubleEndorsementEvidenceAdded: DoubleEndorsementEvidenceNotification;
+  doublePreendorsementEvidenceAdded: DoublePreendorsementEvidenceNotification;
   endorsementAdded: EndorsementNotification;
   endorsementWithSlotAdded: EndorsementWithSlotNotification;
   originationAdded: OriginationNotification;
+  preendorsementAdded: PreendorsementNotification;
   proposalsAdded: ProposalsNotification;
   registerGlobalConstantAdded: RegisterGlobalConstantNotification;
   revealAdded: RevealNotification;
   seedNonceRevelationAdded: SeedNonceRevelationNotification;
+  setDepositsLimitAdded: SetDepositsLimitNotification;
   transactionAdded: TransactionNotification;
 };
 
@@ -2159,6 +2322,13 @@ export type SubscriptionDoubleEndorsementEvidenceAddedArgs = {
 };
 
 
+export type SubscriptionDoublePreendorsementEvidenceAddedArgs = {
+  filter?: InputMaybe<DoublePreendorsementEvidenceFilter>;
+  replayFromBlockLevel?: InputMaybe<Scalars['Int']>;
+  includeMempool?: InputMaybe<Scalars['Boolean']>;
+};
+
+
 export type SubscriptionEndorsementAddedArgs = {
   filter?: InputMaybe<EndorsementFilter>;
   replayFromBlockLevel?: InputMaybe<Scalars['Int']>;
@@ -2175,6 +2345,13 @@ export type SubscriptionEndorsementWithSlotAddedArgs = {
 
 export type SubscriptionOriginationAddedArgs = {
   filter?: InputMaybe<OriginationFilter>;
+  replayFromBlockLevel?: InputMaybe<Scalars['Int']>;
+  includeMempool?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type SubscriptionPreendorsementAddedArgs = {
+  filter?: InputMaybe<PreendorsementFilter>;
   replayFromBlockLevel?: InputMaybe<Scalars['Int']>;
   includeMempool?: InputMaybe<Scalars['Boolean']>;
 };
@@ -2203,6 +2380,13 @@ export type SubscriptionRevealAddedArgs = {
 
 export type SubscriptionSeedNonceRevelationAddedArgs = {
   filter?: InputMaybe<SeedNonceRevelationFilter>;
+  replayFromBlockLevel?: InputMaybe<Scalars['Int']>;
+  includeMempool?: InputMaybe<Scalars['Boolean']>;
+};
+
+
+export type SubscriptionSetDepositsLimitAddedArgs = {
+  filter?: InputMaybe<SetDepositsLimitFilter>;
   replayFromBlockLevel?: InputMaybe<Scalars['Int']>;
   includeMempool?: InputMaybe<Scalars['Boolean']>;
 };

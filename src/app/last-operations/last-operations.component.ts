@@ -7,7 +7,6 @@ import {
 } from 'src/tezgraph-types';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Schema } from '@taquito/michelson-encoder';
 
 @Component({
   selector: 'app-last-operations',
@@ -67,16 +66,16 @@ export class LastOperationsComponent implements OnInit {
         query: gql`
           query Operations(
             $after: Cursor
-            $source: Address
-            $destination: Address
+            $sources: [Address!]
+            $destinations: [Address!]
             $hash: OperationHash
           ) {
             operations(
               first: 20
               after: $after
               filter: {
-                source: $source
-                destination: $destination
+                sources: $sources
+                destinations: $destinations
                 hash: $hash
               }
             ) {
@@ -102,8 +101,8 @@ export class LastOperationsComponent implements OnInit {
         `,
         variables: {
           after: cursor,
-          source: this.source ?? undefined,
-          destination: this.destination ?? undefined,
+          sources: this.source ? [this.source] : undefined,
+          destination: this.destination ? [this.destination] : undefined,
           hash: this.hash ?? undefined,
         },
         errorPolicy: 'ignore',
@@ -197,7 +196,9 @@ export class LastOperationsComponent implements OnInit {
                     gas_limit
                     storage_limit
                     balance
-                    delegate
+                    delegate {
+                      address
+                    }
                     metadata {
                       operation_result {
                         status
@@ -233,7 +234,9 @@ export class LastOperationsComponent implements OnInit {
                     gas_limit
                     storage_limit
                     amount
-                    destination
+                    destination {
+                      address
+                    }
                     parameters {
                       entrypoint
                       value
@@ -284,14 +287,9 @@ export class LastOperationsComponent implements OnInit {
           e.node?.bigmap.annots == '%ledger' ||
           e.node?.bigmap.annots == '%balances'
       )
-      .map((x) => {
-        const v = x.node;
-        const keyStorageSchema = new Schema(v?.bigmap.key_type);
-        const valueStorageSchema = new Schema(v?.bigmap.value_type);
-        return {
-          key: keyStorageSchema.Execute(v?.key),
-          value: valueStorageSchema.Execute(v?.value),
-        };
-      });
+      .map((x) => ({
+        key: x.node?.key,
+        value: x.node?.value ?? null,
+      }));
   }
 }

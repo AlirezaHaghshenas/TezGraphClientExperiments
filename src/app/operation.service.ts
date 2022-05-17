@@ -1,20 +1,20 @@
 import { Injectable } from '@angular/core';
 import { Subscription, gql, Apollo, TypedDocumentNode } from 'apollo-angular';
-import { EmptyObject } from 'apollo-angular/types';
+import { EmptyObject } from 'apollo-angular/build/types';
 import { DocumentNode } from 'graphql';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BlockService {
+export class OperationService {
   constructor(private readonly apollo: Apollo) {}
 
   getSubscriptionAfterLevel(level: number) {
-    return new BlockSubscription(this.apollo, level).subscribe();
+    return new OperationSubscription(this.apollo, level).subscribe();
   }
 }
 
-export class BlockSubscription extends Subscription {
+export class OperationSubscription extends Subscription {
   override readonly document:
     | DocumentNode
     | TypedDocumentNode<any, EmptyObject>;

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Schema } from '@taquito/michelson-encoder';
 import { Apollo, gql } from 'apollo-angular';
 import {
   BigmapRecordConnection,
@@ -13,7 +12,7 @@ import BigNumber from 'bignumber.js';
   styleUrls: ['./token-holders.component.scss'],
 })
 export class TokenHoldersComponent implements OnInit {
-  bigmapId = 88080;
+  bigmapId = '88080';
   total_count?: number;
   entries: {
     key: { '0': string; 1: BigNumber };
@@ -22,8 +21,6 @@ export class TokenHoldersComponent implements OnInit {
     timestamp: string;
     isCurrent: boolean;
   }[] = [];
-  keyStorageSchema?: Schema;
-  valueStorageSchema?: Schema;
   tokenOwners?: string[];
   tokensByAddress?: Map<string, number>;
   numberOfOwners?: number;
@@ -48,7 +45,7 @@ export class TokenHoldersComponent implements OnInit {
     this.apollo
       .query({
         query: gql`
-          query bigmaps($bigmap_id: Int!) {
+          query bigmaps($bigmap_id: BigNumber!) {
             bigmaps(first: 1, filter: { ids: [$bigmap_id] }) {
               edges {
                 node {
@@ -67,8 +64,6 @@ export class TokenHoldersComponent implements OnInit {
         next: (result: any) => {
           const bigmap = (result.data.bigmaps as BigmapRecordConnection)
             .edges![0].node!;
-          this.keyStorageSchema = new Schema(bigmap.key_type);
-          this.valueStorageSchema = new Schema(bigmap.value_type);
           this.initialQueries--;
         },
         error: (error: any) => {
@@ -82,7 +77,7 @@ export class TokenHoldersComponent implements OnInit {
     const info = this.apollo
       .query({
         query: gql`
-          query bigmap_values($bigmap_id: Float) {
+          query bigmap_values($bigmap_id: BigNumber!) {
             bigmap_values(first: 100, filter: { bigmap_id: $bigmap_id }) {
               total_count
               page_info {
@@ -113,8 +108,8 @@ export class TokenHoldersComponent implements OnInit {
             .bigmap_values as BigmapValueRecordConnection;
           this.total_count = valuesConnection.total_count;
           this.entries = valuesConnection.edges!.map((k) => ({
-            key: this.keyStorageSchema?.Execute(k.node!.key),
-            value: this.valueStorageSchema?.Execute(k.node!.value),
+            key: k.node!.key,
+            value: k.node!.value ?? null,
             level: k.node!.block.level,
             timestamp: k.node!.block.timestamp,
             isCurrent: false,
@@ -139,7 +134,7 @@ export class TokenHoldersComponent implements OnInit {
     this.apollo
       .query({
         query: gql`
-          query bigmap_values($bigmap_id: Float, $after: Cursor) {
+          query bigmap_values($bigmap_id: BigNumber!, $after: Cursor) {
             bigmap_values(
               first: 100
               after: $after
@@ -173,8 +168,8 @@ export class TokenHoldersComponent implements OnInit {
           .bigmap_values as BigmapValueRecordConnection;
         this.entries.push(
           ...bigmapValues.edges!.map((k) => ({
-            key: this.keyStorageSchema?.Execute(k.node!.key),
-            value: this.valueStorageSchema?.Execute(k.node!.value),
+            key: k.node!.key,
+            value: k.node!.value ?? null,
             level: k.node!.block.level,
             timestamp: k.node!.block.timestamp,
             isCurrent: false,
@@ -230,7 +225,9 @@ export class TokenHoldersComponent implements OnInit {
       }
       if (v.level === x.level) {
         this.warnings.push(
-          `Multiple values for the same key and level found, Key: ${x.key} Level: ${x.level}`
+          `Multiple values for the same key and level found, Key: ${JSON.stringify(
+            x.key
+          )} Level: ${x.level}`
         );
         console.log(this.warnings);
       } else if (v.level < x.level) {
@@ -263,7 +260,9 @@ export class TokenHoldersComponent implements OnInit {
         const h = history[i];
         if (h.level >= level) {
           this.warnings.push(
-            `Multiple values for the same key and level found, Key: ${key} Level: ${h.level}`
+            `Multiple values for the same key and level found, Key: ${JSON.stringify(
+              key
+            )} Level: ${h.level}`
           );
         }
         level = h.level;
